@@ -8,8 +8,13 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.SimpleTimeZone;
 
 public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
     List<Mensaje> listMensaje =new ArrayList<>();
@@ -36,6 +41,26 @@ public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
         holder.getNombre().setText(listMensaje.get(position).getNombre());
         holder.getMensaje().setText(listMensaje.get(position).getMensaje());
         holder.getHoras().setText(listMensaje.get(position).getHoras());
+        if (listMensaje.get(position).getType_mensaje().equals("2")){
+            holder.getFotoMensaje().setVisibility(View.VISIBLE);
+            holder.getMensaje().setVisibility(View.VISIBLE);
+            Glide.with(c).load(listMensaje.get(position).getUrlFoto()).into(holder.getFotoMensaje());
+        }else if (listMensaje.get(position).getType_mensaje().equals("1")){
+            holder.getFotoMensaje().setVisibility(View.GONE);
+            holder.getMensaje().setVisibility(View.VISIBLE);
+        }
+        if (listMensaje.get(position).getFotoPerfil().isEmpty()){
+            holder.getFotoMensajePerfil().setImageResource(R.mipmap.ic_launcher);
+
+
+        }else {
+            Glide.with(c).load(listMensaje.get(position).getFotoPerfil()).into(holder.getFotoMensajePerfil());
+        }
+
+        Long codigoHora = listMensaje.get(position).getHoras();
+        Date d = new Date(codigoHora);
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a");
+        holder.getHoras().setText(sdf.format(d));
 
     }
 

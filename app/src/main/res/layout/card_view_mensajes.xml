@@ -14,7 +14,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp">
+            android:padding="7dp">
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/fotoPerfilMensaje"
                 android:layout_width="24dp"
@@ -49,6 +49,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hola Bienvenido"/>
+            <ImageView
+                android:id="@+id/messageFoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                />
         </LinearLayout>
 
 

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
@@ -23,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
     private FirebaseStorage storage;
-    private StorageReference storageReference:
+    private StorageReference storageReference;
     private static final int PHOTO_SEND=1;
 
     @Override
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                databaseReference.push().setValue(new Mensaje(txtMensajes.getText().toString(),nombre.getText().toString(),"","1","12:20"));
+                databaseReference.push().setValue(new Mensaje(txtMensajes.getText().toString(),nombre.getText().toString(),"","1","15:12"));
                 txtMensajes.setText("");
             }
         });
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("image/jpg");
+                i.setType("image/jpeg");
                 i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
                 startActivityForResult(Intent.createChooser(i,"Seleccione una foto"),PHOTO_SEND);
             }
@@ -127,18 +129,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==PHOTO_SEND && resultCode==RESULT_OK){
-            Uri u =data.getData();
-            storageReference = storage.getReference("image_chat");
-            final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
-            fotoReference.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Uri u = taskSnapshot.getDownloadUrl();
-                    Mensaje m = new Mensaje("Piero te ha enviado una foto",nombre.getText().toString(),u.toString(),"","2","12:33");
-                    databaseReference.push().setValue(m);
-                }
-            });
+        try {
+
+
+                Uri u = data.getData();
+                storageReference = storage.getReference("image_chat");
+                final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
+                fotoReference.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        fotoReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Mensaje m = new Mensaje("Piero te ha enviado una foto", nombre.getText().toString(), "", "2", ServerValue.TIMESTAMP, uri.toString());
+                                databaseReference.push().setValue(m);
+                            }
+                        });
+
+                    }
+                });
+
+
+
+        } catch (Exception ex) {
+            Toast.makeText(this, "Error" + ex.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 }

@@ -1,6 +1,7 @@
 package pe.briane.chattimefirebase;
 
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,14 +13,16 @@ public class HolderMensaje extends RecyclerView.ViewHolder {
     private TextView nombre;
     private TextView mensaje;
     private TextView horas;
-    private CircleImageView fotoMensaje;
+    private CircleImageView fotoMensajePerfil;
+    private ImageView fotoMensaje;
 
     public HolderMensaje(@NonNull View itemView) {
         super(itemView);
         nombre=(TextView)itemView.findViewById(R.id.nombreMensaje);
         mensaje=(TextView)itemView.findViewById(R.id.mensajeMensaje);
         horas=(TextView)itemView.findViewById(R.id.horasMensaje);
-        fotoMensaje=(CircleImageView) itemView.findViewById(R.id.fotoPerfilMensaje);
+        fotoMensajePerfil =(CircleImageView) itemView.findViewById(R.id.fotoPerfilMensaje);
+        fotoMensaje=(ImageView)itemView.findViewById(R.id.messageFoto);
     }
 
     public TextView getNombre() {
@@ -46,11 +49,19 @@ public class HolderMensaje extends RecyclerView.ViewHolder {
         this.horas = horas;
     }
 
-    public CircleImageView getFotoMensaje() {
+    public CircleImageView getFotoMensajePerfil() {
+        return fotoMensajePerfil;
+    }
+
+    public void setFotoMensajePerfil(CircleImageView fotoMensajePerfil) {
+        this.fotoMensajePerfil = fotoMensajePerfil;
+    }
+
+    public ImageView getFotoMensaje() {
         return fotoMensaje;
     }
 
-    public void setFotoMensaje(CircleImageView fotoMensaje) {
+    public void setFotoMensaje(ImageView fotoMensaje) {
         this.fotoMensaje = fotoMensaje;
     }
 }
