@@ -17,13 +17,13 @@ import java.util.List;
 import java.util.SimpleTimeZone;
 
 public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
-    List<Mensaje> listMensaje =new ArrayList<>();
+    List<MensajeRecibir> listMensaje =new ArrayList<>();
     private Context c;
 
     public AdapterMensajes(Context c) {
         this.c = c;
     }
-    public void addMensaje(Mensaje m){
+    public void addMensaje(MensajeRecibir m){
         listMensaje.add(m);
         notifyItemInserted(listMensaje.size());
     }
@@ -40,7 +40,6 @@ public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
     public void onBindViewHolder(@NonNull HolderMensaje holder, int position) {
         holder.getNombre().setText(listMensaje.get(position).getNombre());
         holder.getMensaje().setText(listMensaje.get(position).getMensaje());
-        holder.getHoras().setText(listMensaje.get(position).getHoras());
         if (listMensaje.get(position).getType_mensaje().equals("2")){
             holder.getFotoMensaje().setVisibility(View.VISIBLE);
             holder.getMensaje().setVisibility(View.VISIBLE);
@@ -56,10 +55,14 @@ public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
         }else {
             Glide.with(c).load(listMensaje.get(position).getFotoPerfil()).into(holder.getFotoMensajePerfil());
         }
-
-        Long codigoHora = listMensaje.get(position).getHoras();
+        if (listMensaje.get(position).getFotoPerfil().isEmpty()){
+            holder.getFotoMensajePerfil().setImageResource(R.mipmap.ic_launcher);
+        }else {
+            Glide.with(c).load(listMensaje.get(position).getFotoPerfil()).into(holder.getFotoMensajePerfil());
+        }
+        Long codigoHora = listMensaje.get(position).getHora();
         Date d = new Date(codigoHora);
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss a");
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
         holder.getHoras().setText(sdf.format(d));
 
     }

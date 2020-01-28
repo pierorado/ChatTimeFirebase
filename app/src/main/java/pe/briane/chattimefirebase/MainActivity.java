@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -45,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private static final int PHOTO_SEND=1;
+    private  static final int PHOTO_PERFIL=2;
+    private String fotoPerfilCadena;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         database=  FirebaseDatabase.getInstance();
         databaseReference = database.getReference("chat");
         storage=FirebaseStorage.getInstance();
+        fotoPerfilCadena="";
 
         adapter=new AdapterMensajes(this);
         LinearLayoutManager l = new LinearLayoutManager(this);
@@ -69,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                databaseReference.push().setValue(new Mensaje(txtMensajes.getText().toString(),nombre.getText().toString(),"","1","15:12"));
+                databaseReference.push().setValue(new MensajeEnviar(txtMensajes.getText().toString(),nombre.getText().toString(),fotoPerfilCadena,"1",ServerValue.TIMESTAMP));
                 txtMensajes.setText("");
             }
         });
@@ -80,6 +84,15 @@ public class MainActivity extends AppCompatActivity {
                 i.setType("image/jpeg");
                 i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
                 startActivityForResult(Intent.createChooser(i,"Seleccione una foto"),PHOTO_SEND);
+            }
+        });
+        fotoPerfil.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+                i.setType("image/jpeg");
+                i.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
+                startActivityForResult(Intent.createChooser(i,"Seleccione una foto"),PHOTO_PERFIL);
             }
         });
         adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
@@ -94,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 //agragar de base de datos a lista
-                Mensaje m=dataSnapshot.getValue(Mensaje.class);
+                MensajeRecibir m=dataSnapshot.getValue(MensajeRecibir.class);
                 adapter.addMensaje(m);
 
             }
@@ -130,24 +143,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
+                if (requestCode == PHOTO_SEND && resultCode == RESULT_OK){
+                    Uri u = data.getData();
+                    storageReference = storage.getReference("image_chat");
+                    final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
+                    fotoReference.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            fotoReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    MensajeEnviar m = new MensajeEnviar("Piero te ha enviado una foto", nombre.getText().toString(),fotoPerfilCadena, "2", uri.toString(),ServerValue.TIMESTAMP);
+                                    databaseReference.push().setValue(m);
+                                }
+                            });
+
+                        }
+                    });
+                }else if (requestCode == PHOTO_PERFIL && resultCode == RESULT_OK){
+                    Uri u = data.getData();
+                    storageReference = storage.getReference("foto_perfil");
+                    final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
+                    fotoReference.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            fotoReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    fotoPerfilCadena=uri.toString();
+                                    MensajeEnviar m = new MensajeEnviar("Piero te ha actualizado su foto perfil", nombre.getText().toString(), fotoPerfilCadena, "2", uri.toString(),ServerValue.TIMESTAMP);
+                                    databaseReference.push().setValue(m);
+                                    Glide.with(MainActivity.this).load(uri.toString()).into(fotoPerfil);
+                                }
+                            });
+
+                        }
+                    });
+                }
 
 
-                Uri u = data.getData();
-                storageReference = storage.getReference("image_chat");
-                final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
-                fotoReference.putFile(u).addOnSuccessListener(this, new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        fotoReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Mensaje m = new Mensaje("Piero te ha enviado una foto", nombre.getText().toString(), "", "2", ServerValue.TIMESTAMP, uri.toString());
-                                databaseReference.push().setValue(m);
-                            }
-                        });
 
-                    }
-                });
 
 
 
