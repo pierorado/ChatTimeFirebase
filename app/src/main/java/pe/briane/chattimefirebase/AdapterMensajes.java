@@ -14,7 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.SimpleTimeZone;
+
+import pe.briane.chattimefirebase.Entidades.MensajeRecibir;
 
 public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
     List<MensajeRecibir> listMensaje =new ArrayList<>();

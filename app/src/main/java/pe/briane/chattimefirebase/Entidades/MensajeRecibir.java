@@ -1,6 +1,8 @@
-package pe.briane.chattimefirebase;
+package pe.briane.chattimefirebase.Entidades;
 
-public class MensajeRecibir extends Mensaje{
+import pe.briane.chattimefirebase.Entidades.Mensaje;
+
+public class MensajeRecibir extends Mensaje {
     private Long hora;
 
     public MensajeRecibir() {
