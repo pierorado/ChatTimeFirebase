@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import pe.briane.chattimefirebase.Entidades.MensajeRecibir;
+import pe.briane.chattimefirebase.Entidades.Firebase.MensajeRecibir;
 
 public class AdapterMensajes extends RecyclerView.Adapter<HolderMensaje> {
     List<MensajeRecibir> listMensaje =new ArrayList<>();

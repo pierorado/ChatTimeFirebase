@@ -37,11 +37,11 @@ public class LoginActivity extends AppCompatActivity {
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                String correo=txtCorreo.getText().toString();
-                if (isValidEmail(correo) && validarContraseña()){
-                    String contraseña=txtContraseña.getText().toString();
-                    mAuth.createUserWithEmailAndPassword(correo, contraseña)
+            public void onClick(View view) {
+                String correo = txtCorreo.getText().toString();
+                if(isValidEmail(correo) && validarContraseña()){
+                    String contraseña = txtContraseña.getText().toString();
+                    mAuth.signInWithEmailAndPassword(correo, contraseña)
                             .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -50,16 +50,14 @@ public class LoginActivity extends AppCompatActivity {
                                         Toast.makeText(LoginActivity.this, "Se logeo correctamente.", Toast.LENGTH_SHORT).show();
                                         newActivity();
                                     } else {
-                                        Toast.makeText(LoginActivity.this, "Error al registrarse.", Toast.LENGTH_SHORT).show();
-
+                                        // If sign in fails, display a message to the user.
+                                        Toast.makeText(LoginActivity.this, "Error, credenciales incorrectas.", Toast.LENGTH_SHORT).show();
                                     }
 
-                                    // ...
                                 }
                             });
-                }else {
+                }else{
                     Toast.makeText(LoginActivity.this, "Validaciones funcionando.", Toast.LENGTH_SHORT).show();
-
                 }
             }
         });
@@ -78,10 +76,9 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validarContraseña(){
         String contraseña;
         contraseña = txtContraseña.getText().toString();
-            if(contraseña.length()>=6 && contraseña.length()<=16){
-                return true;
-            }else return false;
-
+        if(contraseña.length()>=6 && contraseña.length()<=16){
+            return true;
+        }else return false;
     }
 
     @Override
@@ -95,6 +92,6 @@ public class LoginActivity extends AppCompatActivity {
     }
     public void newActivity(){
         startActivity(new Intent(LoginActivity.this,MainActivity.class));
-
+        finish();
     }
 }

@@ -1,10 +1,14 @@
-package pe.briane.chattimefirebase.Entidades;
+package pe.briane.chattimefirebase.Entidades.Firebase;
+
+import com.google.firebase.database.ServerValue;
 
 public class Usuario {
     private String nombre;
     private String correo;
+    private Object createdTimestamp;
 
     public Usuario() {
+        createdTimestamp = ServerValue.TIMESTAMP;
     }
 
     public Usuario(String nombre, String correo) {
@@ -27,4 +31,10 @@ public class Usuario {
     public void setCorreo(String correo) {
         this.correo = correo;
     }
+
+    public Object getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
+
 }

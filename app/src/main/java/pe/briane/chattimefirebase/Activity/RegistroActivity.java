@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import pe.briane.chattimefirebase.Entidades.Usuario;
+import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
 import pe.briane.chattimefirebase.R;
 
 public class RegistroActivity extends AppCompatActivity {

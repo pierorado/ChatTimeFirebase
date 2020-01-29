@@ -1,4 +1,4 @@
-package pe.briane.chattimefirebase.Entidades;
+package pe.briane.chattimefirebase.Entidades.Firebase;
 
 public class Mensaje {
     private String mensaje;

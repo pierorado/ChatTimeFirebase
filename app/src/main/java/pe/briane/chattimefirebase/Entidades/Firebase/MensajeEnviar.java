@@ -1,8 +1,6 @@
-package pe.briane.chattimefirebase.Entidades;
+package pe.briane.chattimefirebase.Entidades.Firebase;
 
 import java.util.Map;
-
-import pe.briane.chattimefirebase.Entidades.Mensaje;
 
 public class MensajeEnviar extends Mensaje {
     private Map hora;
