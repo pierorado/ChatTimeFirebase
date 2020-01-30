@@ -1,30 +1,37 @@
 package pe.briane.chattimefirebase.Entidades.Firebase;
 
+import com.google.firebase.database.ServerValue;
+
 public class Mensaje {
     private String mensaje;
-    private String nombre;
-    private String fotoPerfil;
-    private String type_mensaje;
-
+    private String keyEmisor;
     private String urlFoto;
+    private boolean contieneFoto;
+    private Object createdTimetamp;
 
     public Mensaje() {
-    }
-    public Mensaje(String mensaje, String nombre, String fotoPerfil, String type_mensaje) {
-        this.mensaje = mensaje;
-        this.nombre = nombre;
-        this.fotoPerfil = fotoPerfil;
-        this.type_mensaje = type_mensaje;
+        createdTimetamp = ServerValue.TIMESTAMP;
     }
 
-    public Mensaje(String mensaje, String nombre, String fotoPerfil, String type_mensaje, String urlFoto) {
-        this.mensaje = mensaje;
-        this.nombre = nombre;
-        this.fotoPerfil = fotoPerfil;
-        this.type_mensaje = type_mensaje;
-        this.urlFoto = urlFoto;
+    public boolean isContieneFoto() {
+        return contieneFoto;
     }
 
+    public void setContieneFoto(boolean contieneFoto) {
+        this.contieneFoto = contieneFoto;
+    }
+
+    public void setCreatedTimetamp(Object createdTimetamp) {
+        this.createdTimetamp = createdTimetamp;
+    }
+
+    public String getKeyEmisor() {
+        return keyEmisor;
+    }
+
+    public void setKeyEmisor(String keyEmisor) {
+        this.keyEmisor = keyEmisor;
+    }
 
     public String getMensaje() {
         return mensaje;
@@ -34,30 +41,6 @@ public class Mensaje {
         this.mensaje = mensaje;
     }
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getFotoPerfil() {
-        return fotoPerfil;
-    }
-
-    public void setFotoPerfil(String fotoPerfil) {
-        this.fotoPerfil = fotoPerfil;
-    }
-
-    public String getType_mensaje() {
-        return type_mensaje;
-    }
-
-    public void setType_mensaje(String type_mensaje) {
-        this.type_mensaje = type_mensaje;
-    }
-
     public String getUrlFoto() {
         return urlFoto;
     }
@@ -65,4 +48,9 @@ public class Mensaje {
     public void setUrlFoto(String urlFoto) {
         this.urlFoto = urlFoto;
     }
+
+    public Object getCreatedTimetamp() {
+        return createdTimetamp;
+    }
+
 }

@@ -18,6 +18,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import pe.briane.chattimefirebase.Persistencia.UsuarioDAO;
 import pe.briane.chattimefirebase.R;
 
 public class LoginActivity extends AppCompatActivity {
@@ -67,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(LoginActivity.this,RegistroActivity.class));
         }
     });
-
+        UsuarioDAO.getInstance().añadirfotodeperfilausuariossinfotodeperfil();
 
     }
     private boolean isValidEmail(CharSequence target) {
@@ -91,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     public void newActivity(){
-        startActivity(new Intent(LoginActivity.this,MainActivity.class));
-        finish();
+        //startActivity(new Intent(LoginActivity.this, MensajeriaActivity.class));
+        //finish();
     }
 }

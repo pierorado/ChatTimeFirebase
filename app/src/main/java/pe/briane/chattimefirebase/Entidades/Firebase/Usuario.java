@@ -3,6 +3,7 @@ package pe.briane.chattimefirebase.Entidades.Firebase;
 import com.google.firebase.database.ServerValue;
 
 public class Usuario {
+    private String fotoPerfilURL;
     private String nombre;
     private String correo;
     private Object createdTimestamp;
@@ -11,9 +12,12 @@ public class Usuario {
         createdTimestamp = ServerValue.TIMESTAMP;
     }
 
-    public Usuario(String nombre, String correo) {
-        this.nombre = nombre;
-        this.correo = correo;
+    public String getFotoPerfilURL() {
+        return fotoPerfilURL;
+    }
+
+    public void setFotoPerfilURL(String fotoPerfilURL) {
+        this.fotoPerfilURL = fotoPerfilURL;
     }
 
     public String getNombre() {

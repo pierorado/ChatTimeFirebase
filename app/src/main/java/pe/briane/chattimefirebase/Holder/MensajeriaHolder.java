@@ -1,4 +1,4 @@
-package pe.briane.chattimefirebase;
+package pe.briane.chattimefirebase.Holder;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -8,15 +8,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import pe.briane.chattimefirebase.R;
 
-public class HolderMensaje extends RecyclerView.ViewHolder {
+public class MensajeriaHolder extends RecyclerView.ViewHolder {
     private TextView nombre;
     private TextView mensaje;
     private TextView horas;
     private CircleImageView fotoMensajePerfil;
     private ImageView fotoMensaje;
 
-    public HolderMensaje(@NonNull View itemView) {
+    public MensajeriaHolder(@NonNull View itemView) {
         super(itemView);
         nombre=(TextView)itemView.findViewById(R.id.nombreMensaje);
         mensaje=(TextView)itemView.findViewById(R.id.mensajeMensaje);

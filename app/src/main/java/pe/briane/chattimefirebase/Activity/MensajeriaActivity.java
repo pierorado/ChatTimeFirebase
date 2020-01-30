@@ -36,13 +36,14 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import pe.briane.chattimefirebase.AdapterMensajes;
-import pe.briane.chattimefirebase.Entidades.Firebase.MensajeEnviar;
-import pe.briane.chattimefirebase.Entidades.Firebase.MensajeRecibir;
+import pe.briane.chattimefirebase.Adaptadores.MensajeriaAdaptador;
+import pe.briane.chattimefirebase.Entidades.Firebase.Mensaje;
 import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
+import pe.briane.chattimefirebase.Entidades.Logica.LMensaje;
+import pe.briane.chattimefirebase.Persistencia.UsuarioDAO;
 import pe.briane.chattimefirebase.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MensajeriaActivity extends AppCompatActivity {
 
     private CircleImageView fotoPerfil;
     private TextView nombre;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText txtMensajes;
     private Button btnEnviar , btncerrarSesion;
     private ImageButton btnEnviarFoto;
-    private AdapterMensajes adapter;
+    private MensajeriaAdaptador adapter;
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
     private FirebaseStorage storage;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_mensajeria);
 
         fotoPerfil=(CircleImageView) findViewById(R.id.fotoPerfil);
         nombre=(TextView)findViewById(R.id.nombre);
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
 
         mAuth=FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
-        adapter=new AdapterMensajes(this);
+        adapter=new MensajeriaAdaptador(this);
         LinearLayoutManager l = new LinearLayoutManager(this);
         rvMensajes.setLayoutManager(l);
         rvMensajes.setAdapter(adapter);
@@ -88,8 +89,15 @@ public class MainActivity extends AppCompatActivity {
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                databaseReference.push().setValue(new MensajeEnviar(txtMensajes.getText().toString(),NOMBRE_USUARIO,fotoPerfilCadena,"1",ServerValue.TIMESTAMP));
-                txtMensajes.setText("");
+                String MensajeEnviar = txtMensajes.getText().toString();
+                if (!MensajeEnviar.isEmpty()){
+                    Mensaje mensaje=new Mensaje();
+                    mensaje.setMensaje(MensajeEnviar);
+                    mensaje.setKeyEmisor(UsuarioDAO.getInstance().getKeyUsuario());
+                    databaseReference.push().setValue(mensaje);
+                    txtMensajes.setText("");
+                }
+
             }
         });
         btncerrarSesion.setOnClickListener(new View.OnClickListener() {
@@ -131,8 +139,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 //agragar de base de datos a lista
-                MensajeRecibir m=dataSnapshot.getValue(MensajeRecibir.class);
-                adapter.addMensaje(m);
+                Mensaje mensaje=dataSnapshot.getValue(Mensaje.class);
+                LMensaje lMensaje=new LMensaje(mensaje,dataSnapshot.getKey());
+                adapter.addMensaje(lMensaje);
 
             }
 
@@ -194,14 +203,18 @@ public class MainActivity extends AppCompatActivity {
                             fotoReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    MensajeEnviar m = new MensajeEnviar(NOMBRE_USUARIO+"te ha enviado una foto", nombre.getText().toString(),fotoPerfilCadena, "2", uri.toString(),ServerValue.TIMESTAMP);
-                                    databaseReference.push().setValue(m);
+                                    Mensaje mensaje = new Mensaje();
+                                    mensaje.setMensaje("te ha enviado una foto");
+                                    mensaje.setUrlFoto(uri.toString());
+                                    mensaje.setContieneFoto(true);
+                                    mensaje.setKeyEmisor(UsuarioDAO.getInstance().getKeyUsuario());
+                                    databaseReference.push().setValue(mensaje);
                                 }
                             });
 
                         }
                     });
-                }else if (requestCode == PHOTO_PERFIL && resultCode == RESULT_OK){
+                }/*else if (requestCode == PHOTO_PERFIL && resultCode == RESULT_OK){
                     Uri u = data.getData();
                     storageReference = storage.getReference("foto_perfil");
                     final StorageReference fotoReference = storageReference.child(u.getLastPathSegment());
@@ -214,13 +227,13 @@ public class MainActivity extends AppCompatActivity {
                                     fotoPerfilCadena=uri.toString();
                                     MensajeEnviar m = new MensajeEnviar(NOMBRE_USUARIO+" ha actualizado su foto perfil", nombre.getText().toString(), fotoPerfilCadena, "2", uri.toString(),ServerValue.TIMESTAMP);
                                     databaseReference.push().setValue(m);
-                                    Glide.with(MainActivity.this).load(uri.toString()).into(fotoPerfil);
+                                    Glide.with(MensajeriaActivity.this).load(uri.toString()).into(fotoPerfil);
                                 }
                             });
 
                         }
                     });
-                }
+                }*/
 
 
 
@@ -260,7 +273,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void returnLogind(){
-        startActivity(new Intent(MainActivity.this,LoginActivity.class));
+        startActivity(new Intent(MensajeriaActivity.this,LoginActivity.class));
         finish();
     }
 

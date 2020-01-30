@@ -2,6 +2,7 @@ package pe.briane.chattimefirebase.Activity;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +29,7 @@ public class RegistroActivity extends AppCompatActivity {
     private Button btnRegistrar;
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
+    private static final String TAG = "RegistroActivity";
 
 
     @Override
@@ -49,7 +51,7 @@ public class RegistroActivity extends AppCompatActivity {
                 final String correo = txtCorreo.getText().toString();
                 final String nombre = txtNombre.getText().toString();
                 if(isValidEmail(correo) && validarContraseña() && validarNombre(nombre)){
-                    String contraseña = txtContraseña.getText().toString();
+                    final String contraseña = txtContraseña.getText().toString();
                     mAuth.createUserWithEmailAndPassword(correo, contraseña)
                             .addOnCompleteListener(RegistroActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -66,6 +68,7 @@ public class RegistroActivity extends AppCompatActivity {
                                         finish();
                                     } else {
                                         // If sign in fails, display a message to the user.
+                                        Log.d(TAG, "LA CORREO "+correo);
                                         Toast.makeText(RegistroActivity.this, "Error al registrarse.", Toast.LENGTH_SHORT).show();
                                     }
                                 }

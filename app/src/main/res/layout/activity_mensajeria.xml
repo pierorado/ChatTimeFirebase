@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:padding="5dp"
     android:orientation="vertical"
-    tools:context=".Activity.MainActivity">
+    tools:context=".Activity.MensajeriaActivity">
 <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
