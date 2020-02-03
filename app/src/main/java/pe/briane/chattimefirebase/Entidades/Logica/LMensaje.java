@@ -1,5 +1,7 @@
 package pe.briane.chattimefirebase.Entidades.Logica;
 
+import org.ocpsoft.prettytime.PrettyTime;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -11,9 +13,7 @@ public class LMensaje {
     private String key;
     private LUsuario lUsuario;
 
-    public long getCreatedTimetamp(){
-        return (long)mensaje.getCreatedTimetamp();
-    }
+
     public LMensaje(Mensaje mensaje, String key) {
         this.mensaje = mensaje;
         this.key = key;
@@ -42,9 +42,14 @@ public class LMensaje {
     public void setlUsuario(LUsuario lUsuario) {
         this.lUsuario = lUsuario;
     }
+
+    public long getCreatedTimestampLong(){
+        return (long) mensaje.getCreatedTimestamp();
+    }
+
     public String FechadeCreacionDelMensaje(){
-        Date date = new Date(getCreatedTimetamp());
-        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
-        return sdf.format(date);
+        Date date = new Date(getCreatedTimestampLong());
+        PrettyTime prettyTime = new PrettyTime(new Date(),Locale.getDefault());
+        return prettyTime.format(date);
     }
 }

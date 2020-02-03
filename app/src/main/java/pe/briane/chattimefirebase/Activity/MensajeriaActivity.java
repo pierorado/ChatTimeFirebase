@@ -35,13 +35,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import pe.briane.chattimefirebase.Adaptadores.MensajeriaAdaptador;
 import pe.briane.chattimefirebase.Entidades.Firebase.Mensaje;
 import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
 import pe.briane.chattimefirebase.Entidades.Logica.LMensaje;
+import pe.briane.chattimefirebase.Entidades.Logica.LUsuario;
+import pe.briane.chattimefirebase.Persistencia.MensajeriaDAO;
 import pe.briane.chattimefirebase.Persistencia.UsuarioDAO;
 import pe.briane.chattimefirebase.R;
+import pe.briane.chattimefirebase.Utilidades.Constantes;
 
 public class MensajeriaActivity extends AppCompatActivity {
 
@@ -49,11 +55,10 @@ public class MensajeriaActivity extends AppCompatActivity {
     private TextView nombre;
     private RecyclerView rvMensajes;
     private EditText txtMensajes;
-    private Button btnEnviar , btncerrarSesion;
+    private Button btnEnviar  ;
     private ImageButton btnEnviarFoto;
     private MensajeriaAdaptador adapter;
-    private FirebaseDatabase database;
-    private DatabaseReference databaseReference;
+
     private FirebaseStorage storage;
     private StorageReference storageReference;
     private static final int PHOTO_SEND=1;
@@ -61,26 +66,30 @@ public class MensajeriaActivity extends AppCompatActivity {
     private String fotoPerfilCadena;
     private FirebaseAuth mAuth;
     private String NOMBRE_USUARIO;
+    private String KEY_RECEPTOR;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mensajeria);
-
+        Bundle bundle = getIntent().getExtras();
+        if(bundle!=null){
+            KEY_RECEPTOR = bundle.getString("key_receptor");
+        }else{
+            finish();
+        }
         fotoPerfil=(CircleImageView) findViewById(R.id.fotoPerfil);
         nombre=(TextView)findViewById(R.id.nombre);
         rvMensajes=(RecyclerView)findViewById(R.id.rvMensajes);
         txtMensajes=(EditText)findViewById(R.id.txtMensaje);
         btnEnviar=(Button)findViewById(R.id.btnEnviar);
-        btncerrarSesion=(Button)findViewById(R.id.cerrarSesion);
         btnEnviarFoto = (ImageButton)findViewById(R.id.btnEnviarFoto);
-        database=  FirebaseDatabase.getInstance();
-
-        databaseReference = database.getReference("chat");
         fotoPerfilCadena="";
         nombre.setText(NOMBRE_USUARIO);
 
         mAuth=FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
+
+
         adapter=new MensajeriaAdaptador(this);
         LinearLayoutManager l = new LinearLayoutManager(this);
         rvMensajes.setLayoutManager(l);
@@ -94,17 +103,10 @@ public class MensajeriaActivity extends AppCompatActivity {
                     Mensaje mensaje=new Mensaje();
                     mensaje.setMensaje(MensajeEnviar);
                     mensaje.setKeyEmisor(UsuarioDAO.getInstance().getKeyUsuario());
-                    databaseReference.push().setValue(mensaje);
+                    MensajeriaDAO.getInstance().nuevoMensaje(UsuarioDAO.getInstance().getKeyUsuario(),KEY_RECEPTOR,mensaje);
                     txtMensajes.setText("");
                 }
 
-            }
-        });
-        btncerrarSesion.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                returnLogind();
             }
         });
 
@@ -135,14 +137,39 @@ public class MensajeriaActivity extends AppCompatActivity {
             }
         });
 
-        databaseReference.addChildEventListener(new ChildEventListener() {
+        FirebaseDatabase.
+                getInstance().
+                getReference(Constantes.NODO_MENSAJES).
+                child(UsuarioDAO.getInstance().getKeyUsuario()).
+                child(KEY_RECEPTOR).addChildEventListener(new ChildEventListener() {
+            //guardar la informacion del usuario
+            Map<String, LUsuario>mapUsuarioTemporales = new HashMap<>();
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 //agragar de base de datos a lista
-                Mensaje mensaje=dataSnapshot.getValue(Mensaje.class);
-                LMensaje lMensaje=new LMensaje(mensaje,dataSnapshot.getKey());
-                adapter.addMensaje(lMensaje);
+                final Mensaje mensaje=dataSnapshot.getValue(Mensaje.class);
+                final LMensaje lMensaje=new LMensaje(mensaje,dataSnapshot.getKey());
+                final int posicion=adapter.addMensaje(lMensaje);
 
+                if (mapUsuarioTemporales.get(mensaje.getKeyEmisor())!=null){
+                    lMensaje.setlUsuario(mapUsuarioTemporales.get(mensaje.getKeyEmisor()));
+                    adapter.actualizarMensaje(posicion,lMensaje);
+
+                }else {
+                    UsuarioDAO.getInstance().obtenerInformacionporLlave(mensaje.getKeyEmisor(), new UsuarioDAO.IDevolverUsuario() {
+                        @Override
+                        public void devolverUsuario(LUsuario lUsuario) {
+                            mapUsuarioTemporales.put(mensaje.getKeyEmisor(),lUsuario);
+                            lMensaje.setlUsuario(lUsuario);
+                            adapter.actualizarMensaje(posicion,lMensaje);
+                        }
+
+                        @Override
+                        public void devolverError(String error) {
+                            Toast.makeText(MensajeriaActivity.this,"Error"+error,Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
 
             @Override
@@ -208,7 +235,7 @@ public class MensajeriaActivity extends AppCompatActivity {
                                     mensaje.setUrlFoto(uri.toString());
                                     mensaje.setContieneFoto(true);
                                     mensaje.setKeyEmisor(UsuarioDAO.getInstance().getKeyUsuario());
-                                    databaseReference.push().setValue(mensaje);
+                                    MensajeriaDAO.getInstance().nuevoMensaje(UsuarioDAO.getInstance().getKeyUsuario(),KEY_RECEPTOR,mensaje);
                                 }
                             });
 
@@ -247,34 +274,8 @@ public class MensajeriaActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser!=null){
-            btnEnviar.setEnabled(false);
-            DatabaseReference reference = database.getReference("Usuarios/"+currentUser.getUid());
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    Usuario usuario=dataSnapshot.getValue(Usuario.class);
-                    NOMBRE_USUARIO= usuario.getNombre();
-                    btnEnviar.setEnabled(true);
-                }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                }
-            });
-        }else {
-            returnLogind();
-        }
-    }
 
-    private void returnLogind(){
-        startActivity(new Intent(MensajeriaActivity.this,LoginActivity.class));
-        finish();
-    }
 
 }

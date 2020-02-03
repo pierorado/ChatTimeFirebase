@@ -7,10 +7,12 @@ public class Mensaje {
     private String keyEmisor;
     private String urlFoto;
     private boolean contieneFoto;
-    private Object createdTimetamp;
+    private Object createdTimestamp;
+
+
 
     public Mensaje() {
-        createdTimetamp = ServerValue.TIMESTAMP;
+        createdTimestamp = ServerValue.TIMESTAMP;
     }
 
     public boolean isContieneFoto() {
@@ -21,9 +23,6 @@ public class Mensaje {
         this.contieneFoto = contieneFoto;
     }
 
-    public void setCreatedTimetamp(Object createdTimetamp) {
-        this.createdTimetamp = createdTimetamp;
-    }
 
     public String getKeyEmisor() {
         return keyEmisor;
@@ -49,8 +48,8 @@ public class Mensaje {
         this.urlFoto = urlFoto;
     }
 
-    public Object getCreatedTimetamp() {
-        return createdTimetamp;
+    public Object getCreatedTimestamp() {
+        return createdTimestamp;
     }
 
 }

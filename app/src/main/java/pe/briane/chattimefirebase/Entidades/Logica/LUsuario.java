@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
+import pe.briane.chattimefirebase.Persistencia.UsuarioDAO;
 
 public class LUsuario {
     private String key;
@@ -29,16 +30,6 @@ public class LUsuario {
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
-    }
-
-    public long getCreatedTimestampLong(){
-        return (long)usuario.getCreatedTimestamp();
-
-    }
-    public String obtenerFechaDeCreacion(){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yy", Locale.getDefault());
-        Date date=new Date(getCreatedTimestampLong());
-        return simpleDateFormat.format(date);
     }
 
 

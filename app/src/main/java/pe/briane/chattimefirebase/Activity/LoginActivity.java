@@ -68,7 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(new Intent(LoginActivity.this,RegistroActivity.class));
         }
     });
-        UsuarioDAO.getInstance().añadirfotodeperfilausuariossinfotodeperfil();
+        //UsuarioDAO.getInstance().añadirFotoDePerfilALosUsuariosQueNoTienenFoto();
 
     }
     private boolean isValidEmail(CharSequence target) {
@@ -92,7 +92,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     public void newActivity(){
-        //startActivity(new Intent(LoginActivity.this, MensajeriaActivity.class));
-        //finish();
+        startActivity(new Intent(LoginActivity.this, MenuActivity.class));
+        finish();
     }
 }

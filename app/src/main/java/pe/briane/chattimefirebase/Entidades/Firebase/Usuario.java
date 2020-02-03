@@ -6,10 +6,7 @@ public class Usuario {
     private String fotoPerfilURL;
     private String nombre;
     private String correo;
-    private Object createdTimestamp;
-
     public Usuario() {
-        createdTimestamp = ServerValue.TIMESTAMP;
     }
 
     public String getFotoPerfilURL() {
@@ -36,9 +33,7 @@ public class Usuario {
         this.correo = correo;
     }
 
-    public Object getCreatedTimestamp() {
-        return createdTimestamp;
-    }
+
 
 
 }

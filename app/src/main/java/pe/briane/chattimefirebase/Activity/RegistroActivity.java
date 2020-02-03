@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
 import pe.briane.chattimefirebase.R;
+import pe.briane.chattimefirebase.Utilidades.Constantes;
 
 public class RegistroActivity extends AppCompatActivity {
 
@@ -62,6 +63,7 @@ public class RegistroActivity extends AppCompatActivity {
                                         Usuario usuario = new Usuario();
                                         usuario.setCorreo(correo);
                                         usuario.setNombre(nombre);
+                                        usuario.setFotoPerfilURL(Constantes.URL_FOTO_POR_DEFECTO);
                                         FirebaseUser currentUser = mAuth.getCurrentUser();
                                         DatabaseReference reference = database.getReference("Usuarios/"+currentUser.getUid());
                                         reference.setValue(usuario);
