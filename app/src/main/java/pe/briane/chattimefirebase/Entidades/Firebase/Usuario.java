@@ -6,6 +6,7 @@ public class Usuario {
     private String fotoPerfilURL;
     private String nombre;
     private String correo;
+    private String clave;
     public Usuario() {
     }
 
@@ -33,7 +34,11 @@ public class Usuario {
         this.correo = correo;
     }
 
+    public String getClave() {
+        return clave;
+    }
 
-
-
+    public void setClave(String clave) {
+        this.clave = clave;
+    }
 }

@@ -3,96 +3,123 @@ package pe.briane.chattimefirebase.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import pe.briane.chattimefirebase.Entidades.Firebase.Usuario;
 import pe.briane.chattimefirebase.Persistencia.UsuarioDAO;
 import pe.briane.chattimefirebase.R;
 
-public class LoginActivity extends AppCompatActivity {
-    private EditText txtContraseña,txtCorreo;
+public class LoginActivity extends AppCompatActivity implements Response.Listener<JSONObject>,Response.ErrorListener{
+    private EditText password,number;
+    private Spinner document;
     private Button btnLogin,btnRegistrar;
-    private FirebaseAuth mAuth;
+
+    RequestQueue rq;
+    JsonRequest jrq;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
          setContentView(R.layout.activity_login);
-        txtContraseña=(EditText)findViewById(R.id.idContraseñaLogin);
-        txtCorreo=(EditText)findViewById(R.id.idCorreoLogin);
+        document=(Spinner)findViewById(R.id.Spindocument);
+        number=(EditText)findViewById(R.id.Editnumber);
+        password=(EditText)findViewById(R.id.Editpassword);
         btnLogin=(Button)findViewById(R.id.idLoginLogin);
-        btnRegistrar=(Button)findViewById(R.id.idRegistroLogin);
+        rq = Volley.newRequestQueue(this);
 
-        mAuth = FirebaseAuth.getInstance();
+        document.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Toast.makeText(getApplicationContext(),"",Toast.LENGTH_SHORT).show();
+            }
+        });
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String correo = txtCorreo.getText().toString();
-                if(isValidEmail(correo) && validarContraseña()){
-                    String contraseña = txtContraseña.getText().toString();
-                    mAuth.signInWithEmailAndPassword(correo, contraseña)
-                            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        // Sign in success, update UI with the signed-in user's information
-                                        Toast.makeText(LoginActivity.this, "Se logeo correctamente.", Toast.LENGTH_SHORT).show();
-                                        newActivity();
-                                    } else {
-                                        // If sign in fails, display a message to the user.
-                                        Toast.makeText(LoginActivity.this, "Error, credenciales incorrectas.", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                }
-                            });
-                }else{
-                    Toast.makeText(LoginActivity.this, "Validaciones funcionando.", Toast.LENGTH_SHORT).show();
-                }
+                iniciarSesion();
             }
         });
-    btnRegistrar.setOnClickListener(new View.OnClickListener() {
+    /*btnRegistrar.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             startActivity(new Intent(LoginActivity.this,RegistroActivity.class));
         }
     });
         //UsuarioDAO.getInstance().añadirFotoDePerfilALosUsuariosQueNoTienenFoto();
+        */
+
 
     }
-    private boolean isValidEmail(CharSequence target) {
-        return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
+
+    private void iniciarSesion() {
+        String url ="https://www.briane.pe/service/serv_login.php?profile_id_numero="+number.getText().toString()+
+                "&clave="+password.getText().toString()+"&tipo="+document.getSelectedItemPosition()+"";
+        Log.d("respuesta",url);
+        jrq = new JsonObjectRequest(Request.Method.GET,url,null,this,this);
+        rq.add(jrq);
     }
-    public boolean validarContraseña(){
-        String contraseña;
-        contraseña = txtContraseña.getText().toString();
-        if(contraseña.length()>=6 && contraseña.length()<=16){
-            return true;
-        }else return false;
+
+
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        Toast.makeText(this,"Credenciales incorrectas ",Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if (currentUser!=null){
-            Toast.makeText(this,"usuario logeado",Toast.LENGTH_SHORT).show();
-            newActivity();
+    public void onResponse(JSONObject response) {
+        Usuario usuario= new Usuario();
+
+        JSONArray jsonArray= response.optJSONArray("conductores");
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = jsonArray.getJSONObject(0);
+            usuario.setNombre(jsonObject.optString("nombre"));
+            usuario.setCorreo(jsonObject.optString("correo"));
+            usuario.setClave(jsonObject.optString("clave"));
+
+        }catch (JSONException e ){
+            e.printStackTrace();
         }
-    }
-    public void newActivity(){
-        startActivity(new Intent(LoginActivity.this, MenuActivity.class));
-        finish();
+        Intent intent = new Intent(this,MenuActivity.class);
+        intent.putExtra(MenuActivity.nombres,usuario.getNombre());
+        intent.putExtra(MenuActivity.correos,usuario.getCorreo());
+        intent.putExtra(MenuActivity.claves,usuario.getClave());
+
+        startActivity(intent);
+
     }
 }

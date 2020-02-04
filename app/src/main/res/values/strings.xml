@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">ChatTimeFirebase</string>
+
+    <string-array name="android_layout_arrays">
+        <item>Seleccione Documento</item>
+        <item>Dni</item>
+        <item>Extranjeria</item>
+        <item>PTP</item>
+
+    </string-array>
 </resources>
