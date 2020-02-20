@@ -52,7 +52,51 @@ public class MenuActivity extends AppCompatActivity {
         final String clave = getIntent().getStringExtra("clave");
 
 
-    if (isValidEmail(correo) && validarNombre(nombre)){
+                if (isValidEmail(correo) && validarContraseña(clave)){
+                    mAuth.signInWithEmailAndPassword(correo, clave).addOnCompleteListener(MenuActivity.this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(MenuActivity.this,"Bienvenido "+nombre,Toast.LENGTH_SHORT).show();
+
+                                    } else {
+                                        Toast.makeText(MenuActivity.this, "Procesando."+correo+"-"+nombre,Toast.LENGTH_SHORT).show();
+
+                                            mAuth.createUserWithEmailAndPassword(correo, clave)
+                                                    .addOnCompleteListener(MenuActivity.this, new OnCompleteListener<AuthResult>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                                            if (task.isSuccessful()) {
+                                                                // Sign in success, update UI with the signed-in user's information
+                                                                Toast.makeText(MenuActivity.this, "Usuario nuevo ,Ingrese nuevamente por favor .", Toast.LENGTH_SHORT).show();
+                                                                Usuario usuario = new Usuario();
+                                                                usuario.setCorreo(correo);
+                                                                usuario.setNombre(nombre);
+                                                                usuario.setFotoPerfilURL(Constantes.URL_FOTO_POR_DEFECTO);
+                                                                FirebaseUser currentUser = mAuth.getCurrentUser();
+                                                                DatabaseReference reference = database.getReference("Usuarios/"+currentUser.getUid());
+                                                                reference.setValue(usuario);
+                                                                finish();
+                                                            } else {
+                                                                // If sign in fails, display a message to the user.
+                                                                Log.d(TAG, "LA CORREO "+correo);
+                                                                Toast.makeText(MenuActivity.this, "Error en el proceso.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        }
+                                                    });
+                                    }
+
+                                    // ...
+                                }
+                            });
+                }else {
+                    Toast.makeText(MenuActivity.this, "Validaciones funcionando.", Toast.LENGTH_SHORT).show();
+
+                }
+
+
+
+    /*if (isValidEmail(correo) && validarNombre(nombre)){
         mAuth.createUserWithEmailAndPassword(correo, clave)
                 .addOnCompleteListener(MenuActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -79,7 +123,7 @@ public class MenuActivity extends AppCompatActivity {
         Toast.makeText(MenuActivity.this, "Validaciones funcionando.", Toast.LENGTH_SHORT).show();
 
     }
-
+*/
 
 
 
@@ -104,6 +148,17 @@ public class MenuActivity extends AppCompatActivity {
 
 
     }
+
+
+    public boolean validarContraseña(String clave){
+
+            if(clave.length()>=6 && clave.length()<=16){
+                return true;
+            }else return false;
+
+    }
+
+
     private boolean isValidEmail(CharSequence target) {
         return !TextUtils.isEmpty(target) && android.util.Patterns.EMAIL_ADDRESS.matcher(target).matches();
     }
